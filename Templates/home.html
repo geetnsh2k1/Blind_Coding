@@ -1,0 +1,124 @@
+{% include 'navbar.html' %}
+{% load static %}
+{% block title %}
+    <title></title>
+{% endblock title %}
+
+{% block css %}
+    <style>
+      html, body{
+        height:100%;
+        width:100%;
+      }
+      body{
+        background-color:gray
+      }
+      .main{
+          font-family: 'Montserrat', sans-serif;
+      }
+      #arena{
+        font-size:150%;
+      }
+      @media (min-width:1150px) {
+        .main{
+          display:flex;
+          flex-direction: row;
+          justify-content:space-evenly;
+        }
+        .question{
+          padding:5%;font-size:200%;
+        }
+        .lft{
+          border:5px solid #ffcc29;
+          background-color:rgba(0, 0, 0, 1);
+          color:white;
+          width: 25%;
+          font-size:74.8%;
+          padding: 0 1%;
+          line-height:250%;
+        }
+      }
+      @media (max-width:1150px) {
+        .main{
+          display:flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .lft{
+          margin:5% 0%;
+          background-color:rgba(0, 0, 0, 1);
+          color:white;
+          padding:5% 10%;
+          font-size:125%;
+        }
+      }
+      #arena{
+        background-color:rgba(0, 0, 0, 1);
+      }
+      .rht{
+        border:5px solid #ffcc29;
+      }
+      .question{
+        font-size:200%;
+        font-weight:bold;
+        color:#ffcc29;
+        text-transform: uppercase;
+      }
+    </style>
+{% endblock css %}
+
+{% block content %}
+    
+    <div class="main" style="margin-top:1%;">
+        <div class="lft">
+          <div align="center" class="question">{{problem.Name}}</div>
+          <div>{{problem.Statement}}</div>
+        </div>
+        <div class="rht" style="width:75%;">
+            <div class="form">
+              <form action="save/{{request.user.username}}/" method="post">
+                {% csrf_token %}
+                <textarea id="arena" class="form-control" name="code" placeholder="Enter your code here" id="floatingTextarea2" rows="12" value="" style="color:#ffcc29;border-radius:0;border:0;outline:0;"></textarea>
+                <button type="submit" class="btn btn-danger" style="width:100%" id="Save">Save</button>
+              </form>
+            </div>
+        </div>
+    </div>
+    
+{% endblock content %}
+
+{% block script %}
+    <script>
+      var globalSubmission = ""
+
+      if("{{request.user.is_authenticated}}" == "False") {
+        $("#arena").attr("aria-label", "Disabled input example")
+        $("#arena").attr("disabled", "disabled")
+        $('#arena').attr('placeholder','Login to start code');
+      }else if("{{can}}" == "False") {
+        $("#arena").attr("aria-label", "Disabled input example")
+        $("#arena").attr("disabled", "disabled")
+        $('#arena').attr('placeholder','You have already submitted the code.');
+      }
+
+      $("#arena").keyup(function(e){
+        if(e.key == "ArrowUp" || e.key == "ArrowRight" || e.key == "ArrowDown" || e.key == "ArrowLeft" || e.key == "PageDown" || e.key == "PageUp" || e.key == "Home" || e.key == "End" || e.key == "Meta" || e.key == "Control" || e.key == "Shift") return
+        
+        if(e.key == "Enter") globalSubmission += '\n'
+        else if(e.key == "Backspace" || e.key == "Delete") globalSubmission = globalSubmission.slice(0, length-1)
+        else if((e.keyCode >= 32 && e.keyCode <= 126) || e.key == "[" || e.key == "]" || e.key == "\\" || e.key == "<" || e.key == ">" || e.key == ";" || e.key == ":" || e.key == '"' || e.key == "?" || e.key == "{" || e.key == "}" || e.key == "~" || e.key == "`" || e.key == "_" || e.key == "+" || e.key == "=" || e.key == "-" || e.key == "."|| e.key == "," || e.key == "/") globalSubmission += e.key
+        
+        data = ""
+        for(var i=0; i<globalSubmission.length; i++){
+            if(globalSubmission[i] == " ") data+=" "
+            else if(globalSubmission[i] != "\n") data+="*"
+            else data+="\n"
+        }
+        $("#arena")[0].value = data
+      })
+
+      $("#Save").click(function(){
+        $("#arena")[0].value = globalSubmission
+      })
+    </script>
+{% endblock script %}
